@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Productos de Belleza</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f8f0f9;
+        }
+        h1, h2 {
+            color: #6f2c91; /* Color morado */
+        }
+        .btn-primary {
+            background-color: #d5006d; /* Color rosa */
+            border: none;
+        }
+        .btn-primary:hover {
+            background-color: #c7006b; /* Color rosa oscuro */
+        }
+        .btn-secondary {
+            background-color: #f24c91; /* Color rosa claro */
+            border: none;
+        }
+        .btn-secondary:hover {
+            background-color: #f24c91; /* Color rosa claro oscuro */
+        }
+        .table thead th {
+            background-color: #d5006d; /* Rosa para encabezados de tabla */
+            color: white;
+        }
+        .table tbody tr:hover {
+            background-color: #f1c0e8; /* Color rosa claro al pasar el ratón */
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center">Gestión de Productos de Belleza</h1>
+
+        <div class="card mb-4">
+            <div class="card-body">
+                <form id="productForm">
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="productName">Nombre del producto:</label>
+                            <input type="text" class="form-control" id="productName" required>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="productDescription">Descripción del producto:</label>
+                            <input type="text" class="form-control" id="productDescription" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="productPrice">Precio del producto:</label>
+                            <input type="number" class="form-control" id="productPrice" required>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="productQuantity">Cantidad:</label>
+                            <input type="number" class="form-control" id="productQuantity" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Agregar Producto</button>
+                    <button type="button" class="btn btn-secondary" onclick="consultProduct()">Consultar Producto</button>
+                </form>
+            </div>
+        </div>
+
+        <div id="tableSection" class="mt-5">
+            <h2 class="text-center">Productos Ingresados</h2>
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Descripción</th>
+                            <th>Precio</th>
+                            <th>Cantidad</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="productTableBody">
+                        <!-- Aquí se llenarán los productos -->
+                    </tbody>
+                </table>
+            </div>
+            <button class="btn btn-secondary" onclick="location.reload();">Volver al inicio</button>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    
+    <script>
+        const productos = [];
+
+        document.getElementById("productForm").onsubmit = function(event) {
+            event.preventDefault();
+            
+            const productName = document.getElementById("productName").value;
+            const productDescription = document.getElementById("productDescription").value;
+            const productPrice = document.getElementById("productPrice").value;
+            const productQuantity = document.getElementById("productQuantity").value;
+
+            productos.push({ name: productName, description: productDescription, price: productPrice, quantity: productQuantity });
+            updateTable();
+            document.getElementById("productForm").reset();
+        };
+
+        function updateTable() {
+            const tableBody = document.getElementById("productTableBody");
+            tableBody.innerHTML = '';
+
+            productos.forEach(product => {
+                const row = `<tr>
+                    <td>${product.name}</td>
+                    <td>${product.description}</td>
+                    <td>${product.price}</td>
+                    <td>${product.quantity}</td>
+                    <td>
+                        <button class="btn btn-warning btn-sm" onclick="editProduct('${product.name}')">Editar</button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteProduct('${product.name}')">Eliminar</button>
+                    </td>
+                </tr>`;
+                tableBody.innerHTML += row;
+            });
+        }
+
+        function consultProduct() {
+            const name = prompt("Ingrese el nombre del producto a consultar:");
+            const product = productos.find(p => p.name.toLowerCase() === name.toLowerCase());
+            if (product) {
+                alert(`Producto encontrado:\nNombre: ${product.name}\nDescripción: ${product.description}\nPrecio: ${product.price}\nCantidad: ${product.quantity}`);
+            } else {
+                alert("Producto no encontrado.");
+            }
+        }
+
+        function deleteProduct(name) {
+            if (confirm(`¿Está seguro de que quiere eliminar el producto ${name}?`)) {
+                const index = productos.findIndex(p => p.name === name);
+                if (index !== -1) {
+                    productos.splice(index, 1);
+                    updateTable();
+                }
+            }
+        }
+
+        function editProduct(name) {
+            const product = productos.find(p => p.name === name);
+            if (product) {
+                const newName = prompt("Ingrese el nuevo nombre del producto:", product.name);
+                const newDescription = prompt("Ingrese la nueva descripción del producto:", product.description);
+                const newPrice = prompt("Ingrese el nuevo precio del producto:", product.price);
+                const newQuantity = prompt("Ingrese la nueva cantidad del producto:", product.quantity);
+
+                product.name = newName;
+                product.description = newDescription;
+                product.price = newPrice;
+                product.quantity = newQuantity;
+
+                updateTable();
+            }
+        }
+    </script>
+</body>
+</html>
